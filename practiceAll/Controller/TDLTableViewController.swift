@@ -24,11 +24,11 @@ class TDLTableViewController: UITableViewController {
         itemArray.append(item1)
         
         let item2 = Item()
-        item2.title = "Nauman"
+        item2.title = "Salman"
         itemArray.append(item2)
         
         let item3 = Item()
-        item3.title = "Nauman"
+        item3.title = "Irfan"
         itemArray.append(item3)
         itemArray.append(item3)
         itemArray.append(item3)
