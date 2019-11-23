@@ -13,28 +13,13 @@ class TDLTableViewController: UITableViewController {
     // Mark: - Variables and isntances
     
     var itemArray = [Item]()
-    
+    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        loadItems()
         
-        
-        let item1 = Item()
-        item1.title = "Nauman"
-        itemArray.append(item1)
-        
-        let item2 = Item()
-        item2.title = "Salman"
-        itemArray.append(item2)
-        
-        let item3 = Item()
-        item3.title = "Irfan"
-        itemArray.append(item3)
-        itemArray.append(item3)
-        itemArray.append(item3)
-        itemArray.append(item3)
-        itemArray.append(item3)
-        itemArray.append(item3)
+
 
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
@@ -59,16 +44,82 @@ class TDLTableViewController: UITableViewController {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MYCELL", for: indexPath)
 
             cell.textLabel?.text = itemArray[indexPath.row].title
-     //    Configure the cell...
+     
+            if itemArray[indexPath.row].done == false {
+                cell.accessoryType = .none
+            }else{
+                cell.accessoryType = .checkmark
+            }
+            
+            
 
         return cell
     }
 
-    // Mark: - Table view delegate methods
+   // MARK: - Table View Delegate Methods
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        itemArray[indexPath.row].done =  !itemArray[indexPath.row].done
+        saveItems()
+        tableView.deselectRow(at: indexPath, animated: true)
+        tableView.reloadData()
+        
+        
+    }
+     // MARK: - Add Button Pressed
     
-    
-    
+    @IBAction func addButtonPressed(_ sender: UIBarButtonItem) {
+        var textField = UITextField()
+            
+        let alert = UIAlertController(
+                    title: "Add New Item",
+                    message: "",
+                    preferredStyle: .alert)
+        alert.addTextField { (alertTextField) in
+            alertTextField.placeholder = "Add New Item Here"
+            textField = alertTextField
+            
+        }
+        
+        
+        let action = UIAlertAction(
+                    title: "Add",
+                    style: .default) { (action) in
+                        
+                    let newItem       = Item()
+                        newItem.title = textField.text!
+                        self.itemArray.append(newItem)
+                        self.saveItems()
+                        self.tableView.reloadData()
+        }
+        alert.addAction(action)
+            present(alert,animated: true, completion: nil)
+        
+    }
 
+    func saveItems(){
+        let encoder = PropertyListEncoder()
+        do{
+            let data = try encoder.encode(itemArray)
+            try data.write(to: dataFilePath!)
+        }catch {
+            print("Error! Encoding item array error. \(error)")
+        }
+        tableView.reloadData()
+    }
+    
+    func loadItems(){
+        
+        if let data = try?Data(contentsOf: dataFilePath!){
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            }catch{
+                print("The data could not be decoded. \(error)")
+            }
+            
+        }
+        
+    }
 
 
 
